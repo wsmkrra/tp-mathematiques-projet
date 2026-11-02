@@ -1,149 +1,98 @@
-"""TP1 - Calcul numerique et nombres flottants.
+Ex 1.1
 
-Les exemples sont volontairement courts : lancez ce fichier pour voir les résultats.
-"""
+q, r = divmod(2026, 7)
+print(q, r)
+print(q * 7 + r)
 
-from fractions import Fraction
-import math
-import sys
+Ex 1.2
+print(123456789 % 10)
+print(123456789 // 10)
 
+Ex 2.1
+s = 0
+for _ in range(1000):
+    s += 0.1
+print(s)
+print(100 - s)
 
-def presque_egaux(a, b, tolerance=1e-9):
-    """Renvoie True si a et b sont proches à la tolérance choisie."""
-    return math.isclose(a, b, rel_tol=tolerance, abs_tol=tolerance)
+Ex 2.2
+def presque_egaux(a, b, tol=1e-9):
+    return abs(a - b) < tol
 
+print(presque_egaux(0.1 + 0.2, 0.3))
+print(0.1 + 0.2 == 0.3)
 
+Ex 3.1
+for k in range(1, 11):
+    print(f"7 x {k} = {7 * k}")
+
+Ex 3.2
+total = 0
+for i in range(1, 101):
+    total += i
+print(total)
+print(total == 100 * 101 // 2)
+
+Ex 4.1
 def nombre_de_chiffres(n):
-    """Compte les chiffres de n avec des divisions par 10."""
-    n = abs(n)
-    nombre = 1
+    compte = 1
     while n >= 10:
-        n = n // 10
-        nombre += 1
-    return nombre
+        n //= 10
+        compte += 1
+    return compte
 
+print(nombre_de_chiffres(2026))
+print(nombre_de_chiffres(7))
 
-def racine_heron(a):
-    """Approche la racine carrée avec la méthode de Héron."""
-    if a < 0:
-        raise ValueError("Le nombre doit être positif.")
-    if a == 0:
-        return 0
+Ex 5.1
+import math
 
-    estimation = a
+def heron(a, tol=1e-12):
+    x = a
     while True:
-        nouvelle_estimation = (estimation + a / estimation) / 2
-        if abs(nouvelle_estimation - estimation) < 1e-12:
-            return nouvelle_estimation
-        estimation = nouvelle_estimation
+        y = (x + a / x) / 2
+        if abs(y - x) < tol:
+            return y
+        x = y
 
+print(heron(2))
+print(abs(heron(2) - math.sqrt(2)))
 
+Ex 6.1
 def vers_binaire(n):
-    """Convertit un entier positif en binaire sans utiliser bin()."""
-    if n < 0:
-        raise ValueError("Le nombre doit être positif.")
     if n == 0:
         return "0"
-
-    resultat = ""
+    chiffres = ""
     while n > 0:
-        chiffre = n % 2
-        resultat = str(chiffre) + resultat
-        n = n // 2
-    return resultat
+        chiffres = str(n % 2) + chiffres
+        n //= 2
+    return chiffres
 
+print(vers_binaire(37))
+print(vers_binaire(0))
 
-def epsilon_machine():
-    """Trouve la plus petite petite valeur qui change 1.0."""
-    epsilon = 1.0
-    while 1.0 + epsilon / 2 != 1.0:
-        epsilon = epsilon / 2
-    return epsilon
+Ex 6.2
 
+import sys
 
-def racines_naives(a, b, c):
-    """Résout ax²+bx+c=0 avec la formule classique."""
-    delta = b * b - 4 * a * c
-    if delta < 0:
-        raise ValueError("Il n'y a pas de racine réelle.")
+eps = 1.0
+while 1.0 + eps / 2 != 1.0:
+    eps /= 2
+print(eps)
+print(sys.float_info.epsilon)
 
-    racine_delta = math.sqrt(delta)
-    x1 = (-b - racine_delta) / (2 * a)
-    x2 = (-b + racine_delta) / (2 * a)
-    return x1, x2
+Ex 7.1
 
+python
+import math
 
-def racines_stables(a, b, c):
-    """Même calcul, avec une formule qui limite la perte de précision."""
-    delta = b * b - 4 * a * c
-    if delta < 0:
-        raise ValueError("Il n'y a pas de racine réelle.")
+def racines_naif(a, b, c):
+    delta = b**2 - 4 * a * c
+    r1 = (-b + math.sqrt(delta)) / (2 * a)
+    r2 = (-b - math.sqrt(delta)) / (2 * a)
+    return r1, r2
 
-    racine_delta = math.sqrt(delta)
-    if racine_delta == 0:
-        racine = -b / (2 * a)
-        return racine, racine
+r1, r2 = racines_naif(1, -1e8, 1)
+print(r1, r2)
+print(r1 * r2)
 
-    # Choisir le signe qui évite de soustraire deux nombres proches.
-    if b >= 0:
-        grande_racine = (-b - racine_delta) / (2 * a)
-    else:
-        grande_racine = (-b + racine_delta) / (2 * a)
-
-    petite_racine = c / (a * grande_racine)
-    return min(petite_racine, grande_racine), max(petite_racine, grande_racine)
-
-
-def demonstrations():
-    print("1. Division euclidienne")
-    n = 2026
-    diviseur = 7
-    quotient = n // diviseur
-    reste = n % diviseur
-    print(quotient, reste, "recomposition :", quotient * diviseur + reste)
-
-    print("\n2. Chiffres d'un entier")
-    print(123456789 % 10, 123456789 // 10)
-    print("Nombre de chiffres de 2026 :", nombre_de_chiffres(2026))
-
-    print("\n3. Les flottants")
-    print("0.1 + 0.2 =", 0.1 + 0.2)
-    print("Egal à 0.3 ?", 0.1 + 0.2 == 0.3)
-    print("Proche de 0.3 ?", presque_egaux(0.1 + 0.2, 0.3))
-    total = 0.0
-    for _ in range(1000):
-        total += 0.1
-    print("Mille additions de 0.1 :", total, "écart à 100 :", total - 100)
-
-    print("\n4. Boucles et sommes")
-    for i in range(1, 11):
-        print("7 x", i, "=", 7 * i)
-    total = 0
-    for i in range(1, 101):
-        total += i
-    print("Somme par boucle :", total)
-    print("Somme par formule :", 100 * 101 // 2)
-
-    print("\n5. Méthode de Héron")
-    print("Racine de 2 :", racine_heron(2), "valeur Python :", math.sqrt(2))
-
-    print("\n6. Binaire et précision machine")
-    print("37 en binaire :", vers_binaire(37))
-    print("Epsilon trouvé :", epsilon_machine())
-    print("Epsilon Python :", sys.float_info.epsilon)
-
-    print("\n7. Formule quadratique")
-    naive = racines_naives(1.0, -1e8, 1.0)
-    stable = racines_stables(1.0, -1e8, 1.0)
-    print("Racines naïves :", naive, "produit :", naive[0] * naive[1])
-    print("Racines stables :", stable, "produit :", stable[0] * stable[1])
-
-    print("\n8. Fractions exactes")
-    total_exact = Fraction(0)
-    for _ in range(1000):
-        total_exact += Fraction(1, 10)
-    print(total_exact, "égal à 100 ?", total_exact == 100)
-
-
-if __name__ == "__main__":
-    demonstrations()
