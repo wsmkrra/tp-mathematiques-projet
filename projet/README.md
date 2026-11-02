@@ -1,43 +1,27 @@
-# Projet personnel — Cercles et intersections dans le plan
+# Projet : cercles et intersections
 
-## But
+## Que fait le programme ?
 
-À partir de trois points non alignés, calculer le cercle passant par eux, puis déterminer les intersections de ce cercle avec une droite. Le programme traite les cas de deux intersections, de tangence et d'absence d'intersection, et affiche le résidu numérique du polynôme obtenu.
+À partir de trois points, il calcule le cercle qui passe par eux. Il cherche ensuite où une droite coupe ce cercle : en deux points, en un point ou pas du tout.
 
-## Notions mobilisées
+## Notions utilisées
 
-- **Géométrie plane :** coordonnées, centre et rayon d'un cercle, droite paramétrée, points d'intersection.
-- **Matrices et systèmes linéaires :** le centre est calculé en résolvant un système de deux équations à deux inconnues avec le pivot de Gauss du TP4.
-- **Polynômes et racines :** la substitution d'une droite paramétrée dans l'équation du cercle donne un polynôme quadratique en le paramètre t.
-- **Calcul numérique et flottants :** formule quadratique stabilisée, discriminant près de zéro, math.fsum, résidu et points presque alignés.
-- **Arithmétique :** les coefficients du polynôme sont obtenus à partir des produits et sommes des coordonnées.
+- Géométrie : cercles, droites et points d'intersection.
+- Matrices : le centre du cercle est trouvé avec la méthode du TP4.
+- Polynômes : les intersections sont calculées en résolvant un polynôme du second degré.
+- Flottants : le programme limite certaines erreurs d'arrondi et repère les points presque alignés.
+- Arithmétique : les calculs utilisent les opérations sur les coordonnées. Les notions du TP2, comme le PGCD ou le modulo, restent à ajouter.
 
-## Calculs
-
-Pour trois points A, B et C, on translate l'origine en A. Le centre relatif (u, v) vérifie le système :
-
-    2 (Bx-Ax) u + 2 (By-Ay) v = (Bx-Ax)² + (By-Ay)²
-    2 (Cx-Ax) u + 2 (Cy-Ay) v = (Cx-Ax)² + (Cy-Ay)²
-
-Le système est résolu par resoudre du TP4. Le programme normalise les coefficients avant de résoudre pour limiter les problèmes d'échelle et signale les points alignés ou presque alignés.
-
-Une droite P + t V croise le cercle si les racines réelles du polynôme ci-dessous existent :
-
-    a = V·V
-    b = 2 (P-centre)·V
-    c = |P-centre|² - rayon²
-    a t² + b t + c = 0
-
-Les racines donnent ensuite les points d'intersection. Le code réutilise l'évaluation de polynômes du TP3 pour afficher le résidu en chaque racine.
-
-## Exécution
+## Lancer
 
 Depuis la racine du dépôt :
 
-    python -m projet.cercles
+```bash
+python -m projet.cercles
+```
 
-Le scénario fourni utilise trois points d'un cercle de centre (2, -1) et de rayon 5. La droite y=-1 le coupe en deux points ; deux autres droites illustrent la tangence et l'absence d'intersection.
+Le programme affiche des exemples de sécante, de tangente, de droite sans intersection et de points presque alignés.
 
 ## Limites
 
-Le programme emploie des nombres flottants. Le seuil du discriminant est donc relatif à la taille des termes du calcul. Des points extrêmement proches d'un alignement peuvent être déclarés presque alignés, car leur cercle est très sensible aux petites variations des coordonnées. Pour des données réelles, il faudrait également documenter l'incertitude de mesure et choisir une tolérance adaptée à l'unité utilisée.
+Les calculs utilisent des nombres flottants. Quand les trois points sont presque alignés, le cercle est très sensible aux petites erreurs de mesure.
