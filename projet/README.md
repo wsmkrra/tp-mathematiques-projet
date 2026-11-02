@@ -1,18 +1,15 @@
-# Projet : cercles et intersections
+# Projet de géométrie : cercles et droites
 
-## Que fait le programme ?
+## Objectif
 
-À partir de trois points, il calcule le cercle qui passe par eux. Il cherche ensuite où une droite coupe ce cercle : en deux points, en un point ou pas du tout.
+Le programme calcule le cercle passant par trois points, puis cherche où une droite le coupe.
 
-## Notions utilisées
+## Calculs géométriques
 
-- Géométrie : cercles, droites et points d'intersection.
-- Matrices : le centre du cercle est trouvé avec la méthode du TP4.
-- Polynômes : les intersections sont calculées en résolvant un polynôme du second degré.
-- Flottants : le programme limite certaines erreurs d'arrondi et repère les points presque alignés.
-- Arithmétique : les calculs utilisent les opérations sur les coordonnées. Les notions du TP2, comme le PGCD ou le modulo, restent à ajouter.
+- Le centre du cercle est calculé à partir des trois points.
+- Pour la droite, le programme trouve le point le plus proche du centre. La distance à ce point permet de savoir si la droite ne coupe pas le cercle, le touche ou le traverse.
 
-## Lancer
+## Lancer le programme
 
 Depuis la racine du dépôt :
 
@@ -20,8 +17,11 @@ Depuis la racine du dépôt :
 python -m projet.cercles
 ```
 
-Le programme affiche des exemples de sécante, de tangente, de droite sans intersection et de points presque alignés.
+Les exemples montrent une sécante, une tangente, une droite extérieure et un cas de trois points presque alignés.
 
 ## Limites
 
-Les calculs utilisent des nombres flottants. Quand les trois points sont presque alignés, le cercle est très sensible aux petites erreurs de mesure.
+Les calculs utilisent des nombres flottants. Quand les trois points sont presque alignés, le cercle calculé devient très sensible aux petites erreurs.
+
+Ce projet se concentre sur la géométrie. Il ne couvre pas à lui seul toutes les notions demandées pour le projet du module.
+
