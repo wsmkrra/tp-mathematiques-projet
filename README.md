@@ -13,11 +13,6 @@ Avec Python 3, depuis ce dossier :
 - Projet : `python -m projet.cercles`
 
 Les autres TP se lancent de la même façon. Leurs noms sont dans [`tp/`](tp/). Les graphiques des TP3 et TP6 demandent Matplotlib.
-
-## Aide utilisée
-
-Une IA a aidé à préparer les scripts et les README. Je dois encore vérifier les résultats et ajouter mes propres essais.
-
 ## Cours
 
 [Page du module](https://cours.gclab.fr/outils-fondamentaux/) · [Carnets JupyterLite](https://cours.gclab.fr/lite/tree/index.html)
