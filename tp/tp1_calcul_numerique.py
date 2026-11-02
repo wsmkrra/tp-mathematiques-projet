@@ -83,7 +83,6 @@ print(sys.float_info.epsilon)
 
 Ex 7.1
 
-python
 import math
 
 def racines_naif(a, b, c):
