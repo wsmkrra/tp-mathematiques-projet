@@ -76,8 +76,3 @@ Les calculs se font en nombres flottants, donc les cas limites (tangence, aligne
 - Le module ne travaille que dans le plan (pas de 3D).
 - Les points sont donnés comme des couples de nombres `(x, y)`.
 - La précision est de l'ordre de 10⁻¹¹ en relatif, limitée par les flottants.
-
-## Auteur et licence
-
-Auteur : à compléter.
-Licence : à compléter.
