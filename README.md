@@ -1,26 +1,23 @@
-# Travaux pratiques et projet personnel
+# TP et projet de mathématiques
 
-Ce dépôt sépare nettement les travaux du module en deux parties :
+Ce dépôt contient deux parties séparées :
 
-- [tp/](tp/) contient les solutions des TP1 à TP6, avec un script Python par séance et des exemples à exécuter.
-- [projet/](projet/) contient le projet personnel **Cercles et intersections dans le plan**. Il réunit géométrie, matrices et systèmes linéaires, polynômes, arithmétique, calcul numérique et flottants.
+- [`tp/`](tp/) : les scripts Python des TP1 à TP6.
+- [`projet/`](projet/) : un programme qui calcule un cercle et ses intersections avec une droite.
 
-Les réponses aux TP sont regroupées dans [tp/README.md](tp/README.md). Le projet, sa méthode et ses limites sont décrits dans [projet/README.md](projet/README.md).
+## Lancer les programmes
 
-## Exécuter
+Avec Python 3, depuis ce dossier :
 
-Depuis la racine du dépôt, avec Python 3 :
+- TP1 : `python tp/tp1_calcul_numerique.py`
+- Projet : `python -m projet.cercles`
 
-    python tp/tp1_calcul_numerique.py
-    python tp/tp2_arithmetique.py
-    python tp/tp3_polynomes_fonctions.py
-    python tp/tp4_matrices_systemes.py
-    python tp/tp5_synthese.py
-    python tp/tp6_geometrie_plan.py
-    python -m projet.cercles
+Les autres TP se lancent de la même façon. Leurs noms sont dans [`tp/`](tp/). Les graphiques des TP3 et TP6 demandent Matplotlib.
 
-Le TP4 utilise NumPy facultativement pour comparer les résultats aux routines optimisées. Les fonctions de tracé des TP3 et TP6 nécessitent Matplotlib.
+## Aide utilisée
 
-## Sources du cours
+Une IA a aidé à préparer les scripts et les README. Je dois encore vérifier les résultats et ajouter mes propres essais.
 
-Les énoncés de référence sont ceux du module [Outils fondamentaux](https://cours.gclab.fr/outils-fondamentaux/). La page JupyterLite fournie est [l'arborescence des carnets](https://cours.gclab.fr/lite/tree/index.html).
+## Cours
+
+[Page du module](https://cours.gclab.fr/outils-fondamentaux/) · [Carnets JupyterLite](https://cours.gclab.fr/lite/tree/index.html)
