@@ -1,235 +1,150 @@
-"""TP4 - Matrices et systèmes linéaires."""
 
-from fractions import Fraction
-import math
+Ex 1.1
+def transposee(A):
+    return [list(colonne) for colonne in zip(*A)]
+
+print(transposee([[1, 2, 3], [4, 5, 6]]))   # [[1, 4], [2, 5], [3, 6]]
+
+
+Ex 2.1
+def produit(A, B):
+    n = len(A)
+    m = len(B[0])
+    p = len(B)
+    C = [[0] * m for _ in range(n)]
+    for i in range(n):
+        for j in range(m):
+            for k in range(p):
+                C[i][j] += A[i][k] * B[k][j]
+    return C
+
+print(produit([[1, 2], [3, 4]], [[1, 0], [0, 1]]))   # [[1, 2], [3, 4]] : l'identité ne change rien
+print(produit([[1, 2], [3, 4]], [[0, 1], [1, 0]]))   # [[2, 1], [4, 3]] : vérifié de tête
+
+
+Ex 2.2
 import random
 import time
 
+def matrice_aleatoire(n):
+    return [[random.random() for _ in range(n)] for _ in range(n)]
 
-def transposee(A):
-    """Échange les lignes et les colonnes."""
-    resultat = []
-    for j in range(len(A[0])):
-        nouvelle_ligne = []
-        for i in range(len(A)):
-            nouvelle_ligne.append(A[i][j])
-        resultat.append(nouvelle_ligne)
-    return resultat
-
-
-def produit(A, B):
-    """Multiplie deux matrices avec trois boucles."""
-    lignes_A = len(A)
-    colonnes_A = len(A[0])
-    colonnes_B = len(B[0])
-
-    if colonnes_A != len(B):
-        raise ValueError("Les dimensions ne correspondent pas.")
-
-    resultat = []
-    for i in range(lignes_A):
-        ligne = []
-        for j in range(colonnes_B):
-            somme = 0
-            for k in range(colonnes_A):
-                somme += A[i][k] * B[k][j]
-            ligne.append(somme)
-        resultat.append(ligne)
-    return resultat
+for n in [40, 80, 120]:
+    A = matrice_aleatoire(n)
+    B = matrice_aleatoire(n)
+    debut = time.perf_counter()
+    produit(A, B)
+    print(n, round(time.perf_counter() - debut, 4))
 
 
-def resoudre(A, b, tolerance=1e-14):
-    """Résout A*x=b avec le pivot de Gauss et un pivot partiel."""
+
+Ex 3.1
+import numpy as np
+
+n = 120
+A = matrice_aleatoire(n)
+B = matrice_aleatoire(n)
+A_np = np.array(A)
+B_np = np.array(B)
+
+debut = time.perf_counter()
+produit(A, B)
+t_python = time.perf_counter() - debut
+
+debut = time.perf_counter()
+for _ in range(100):
+    A_np @ B_np
+t_numpy = (time.perf_counter() - debut) / 100
+
+print("python :", round(t_python, 4), "s")
+print("numpy  :", round(t_numpy, 7), "s")
+print("rapport:", round(t_python / t_numpy))
+
+Ex 4.1
+def resoudre(A, b):
     n = len(A)
-    matrice = []
-
-    # Copier A et ajouter b à droite pour former [A | b].
-    for i in range(n):
-        matrice.append(A[i][:] + [b[i]])
-
-    # Élimination : rendre nuls les nombres sous la diagonale.
+    M = [list(A[i]) + [b[i]] for i in range(n)]
+    # élimination avec pivot partiel
     for k in range(n):
-        ligne_pivot = k
+        p = max(range(k, n), key=lambda i: abs(M[i][k]))
+        if M[p][k] == 0:
+            raise ValueError("système singulier")
+        M[k], M[p] = M[p], M[k]
         for i in range(k + 1, n):
-            if abs(matrice[i][k]) > abs(matrice[ligne_pivot][k]):
-                ligne_pivot = i
-
-        if abs(matrice[ligne_pivot][k]) <= tolerance:
-            raise ValueError("Le système n'a pas de solution unique.")
-
-        matrice[k], matrice[ligne_pivot] = matrice[ligne_pivot], matrice[k]
-
-        for i in range(k + 1, n):
-            facteur = matrice[i][k] / matrice[k][k]
+            facteur = M[i][k] / M[k][k]
             for j in range(k, n + 1):
-                matrice[i][j] -= facteur * matrice[k][j]
-
-    # Remontée : calculer les inconnues de la dernière à la première.
-    solution = [0] * n
+                M[i][j] -= facteur * M[k][j]
+    # remontée
+    x = [0] * n
     for i in range(n - 1, -1, -1):
-        somme = matrice[i][n]
-        for j in range(i + 1, n):
-            somme -= matrice[i][j] * solution[j]
-        solution[i] = somme / matrice[i][i]
-    return solution
+        somme = sum(M[i][j] * x[j] for j in range(i + 1, n))
+        x[i] = (M[i][n] - somme) / M[i][i]
+    return x
 
+A = [[1, 2, 2], [1, 3, -2], [3, 5, 8]]
+b = [2, -1, 8]
+x = resoudre(A, b)
+print([round(v, 10) for v in x])                                              # [3.0, -1.0, 0.5]
+print([round(sum(A[i][j] * x[j] for j in range(3)), 10) for i in range(3)])   # [2.0, -1.0, 8.0] = b
 
-def determinant(A, tolerance=1e-14):
-    """Calcule le déterminant par élimination de Gauss."""
-    n = len(A)
-    matrice = [ligne[:] for ligne in A]
-    resultat = 1
+Ex 4.2
+import numpy as np
 
-    for k in range(n):
-        ligne_pivot = k
-        for i in range(k + 1, n):
-            if abs(matrice[i][k]) > abs(matrice[ligne_pivot][k]):
-                ligne_pivot = i
+rng = np.random.default_rng(0)
+n = 50
+A_np = rng.standard_normal((n, n))
+b_np = rng.standard_normal(n)
 
-        if abs(matrice[ligne_pivot][k]) <= tolerance:
-            return 0
+x_mine = np.array(resoudre(A_np.tolist(), b_np.tolist()))
+x_numpy = np.linalg.solve(A_np, b_np)
+print(np.max(np.abs(x_mine - x_numpy)))   # environ 1e-13, donc inférieur à 1e-9
 
-        if ligne_pivot != k:
-            matrice[k], matrice[ligne_pivot] = matrice[ligne_pivot], matrice[k]
-            resultat = -resultat
-
-        pivot = matrice[k][k]
-        resultat *= pivot
-        for i in range(k + 1, n):
-            facteur = matrice[i][k] / pivot
-            for j in range(k + 1, n):
-                matrice[i][j] -= facteur * matrice[k][j]
-    return resultat
-
-
-def inverse(A, tolerance=1e-14):
-    """Inverse une matrice avec Gauss-Jordan (exercice complémentaire)."""
-    n = len(A)
-    matrice = []
-    for i in range(n):
-        ligne = A[i][:] + [0] * n
-        ligne[n + i] = 1
-        matrice.append(ligne)
-
-    for k in range(n):
-        ligne_pivot = k
-        for i in range(k + 1, n):
-            if abs(matrice[i][k]) > abs(matrice[ligne_pivot][k]):
-                ligne_pivot = i
-        if abs(matrice[ligne_pivot][k]) <= tolerance:
-            raise ValueError("La matrice n'est pas inversible.")
-        matrice[k], matrice[ligne_pivot] = matrice[ligne_pivot], matrice[k]
-
-        pivot = matrice[k][k]
-        for j in range(2 * n):
-            matrice[k][j] /= pivot
-
-        for i in range(n):
-            if i != k:
-                facteur = matrice[i][k]
-                for j in range(2 * n):
-                    matrice[i][j] -= facteur * matrice[k][j]
-
-    resultat = []
-    for i in range(n):
-        resultat.append(matrice[i][n:])
-    return resultat
-
+Ex 5.1
+import numpy as np
 
 def hilbert(n):
-    """Construit la matrice de Hilbert avec des flottants."""
-    resultat = []
-    for i in range(n):
-        ligne = []
-        for j in range(n):
-            ligne.append(1.0 / (i + j + 1))
-        resultat.append(ligne)
-    return resultat
+    return np.array([[1.0 / (i + j + 1) for j in range(n)] for i in range(n)])
 
+n = 12
+H = hilbert(n)
+x_vrai = np.ones(n)
+b = H @ x_vrai
+x_solve = np.linalg.solve(H, b)
+x_inverse = np.linalg.inv(H) @ b
+print("erreur avec solve   :", float(np.max(np.abs(x_solve - x_vrai))))
+print("erreur avec inv @ b :", float(np.max(np.abs(x_inverse - x_vrai))))
+print("conditionnement     : {:.3e}".format(float(np.linalg.cond(H))))
 
-def hilbert_exacte(n):
-    """Même matrice avec des fractions exactes."""
-    resultat = []
-    for i in range(n):
-        ligne = []
-        for j in range(n):
-            ligne.append(Fraction(1, i + j + 1))
-        resultat.append(ligne)
-    return resultat
-
+Ex 6.1
+import numpy as np
 
 def rotation(angle):
-    """Matrice 2x2 de rotation, angle en radians."""
-    c = math.cos(angle)
-    s = math.sin(angle)
-    return [[c, -s], [s, c]]
+    c, s = np.cos(angle), np.sin(angle)
+    return np.array([[c, -s], [s, c]])
 
+print(np.allclose(rotation(np.pi / 3) @ rotation(np.pi / 6), rotation(np.pi / 2)))   # True
 
-def translation(tx, ty):
-    """Matrice de translation en coordonnées homogènes."""
-    return [[1, 0, tx], [0, 1, ty], [0, 0, 1]]
+Ex 7.1
+def determinant(A):
+    n = len(A)
+    M = [list(map(float, ligne)) for ligne in A]
+    det = 1.0
+    for k in range(n):
+        p = max(range(k, n), key=lambda i: abs(M[i][k]))
+        if M[p][k] == 0:
+            return 0.0
+        if p != k:
+            M[k], M[p] = M[p], M[k]
+            det = -det
+        det *= M[k][k]
+        for i in range(k + 1, n):
+            facteur = M[i][k] / M[k][k]
+            for j in range(k, n):
+                M[i][j] -= facteur * M[k][j]
+    return det
 
+import numpy as np
 
-def rotation_h(angle):
-    """Matrice de rotation en coordonnées homogènes."""
-    c = math.cos(angle)
-    s = math.sin(angle)
-    return [[c, -s, 0], [s, c, 0], [0, 0, 1]]
-
-
-def appliquer(T, point):
-    """Applique une transformation homogène au point (x,y)."""
-    x, y = point
-    p = [x, y, 1]
-    resultat = []
-    for i in range(3):
-        valeur = 0
-        for j in range(3):
-            valeur += T[i][j] * p[j]
-        resultat.append(valeur)
-    return resultat[0] / resultat[2], resultat[1] / resultat[2]
-
-
-def demonstrations():
-    print("1. Transposée et produit")
-    print(transposee([[1, 2, 3], [4, 5, 6]]))
-    A = [[1, 2, 2], [1, 3, -2], [3, 5, 8]]
-    identite = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    print("A fois identité :", produit(A, identite))
-
-    print("\n2. Résolution d'un système")
-    b = [2, -1, 8]
-    x = resoudre(A, b)
-    print("Solution :", x)
-    print("A*x :", [sum(A[i][j] * x[j] for j in range(3)) for i in range(3)])
-
-    print("\n3. Déterminant et inverse")
-    print("Déterminant :", determinant(A))
-    print("Première ligne de l'inverse :", inverse(A)[0])
-
-    print("\n4. Matrices exactes")
-    H = hilbert_exacte(12)
-    second_membre = [sum(ligne) for ligne in H]
-    print("Solution exacte :", resoudre(H, second_membre, tolerance=0))
-
-    print("\n5. Rotation puis translation")
-    T = translation(3, 1)
-    R = rotation_h(math.pi / 2)
-    print("Translation puis rotation :", appliquer(produit(R, T), (1, 0)))
-    print("Rotation puis translation :", appliquer(produit(T, R), (1, 0)))
-
-    print("\n6. Comparaison simple avec NumPy, si installé")
-    try:
-        import numpy as np
-        matrice = np.array(A, dtype=float)
-        debut = time.perf_counter()
-        solution_numpy = np.linalg.solve(matrice, np.array(b, dtype=float))
-        print("Temps NumPy :", time.perf_counter() - debut)
-        print("Solution manuelle / NumPy :", x, solution_numpy)
-        print("Condition de la matrice de Hilbert :", np.linalg.cond(np.array(hilbert(12))))
-    except ImportError:
-        print("NumPy n'est pas installé; les exercices en Python pur fonctionnent quand même.")
-
-
-if __name__ == "__main__":
-    demonstrations()
+A = [[1, 2, 2], [1, 3, -2], [3, 5, 8]]
+print(round(determinant(A), 10), round(float(np.linalg.det(np.array(A, dtype=float))), 10))   # -2.0 -2.0
+print(determinant([[1, 2], [2, 4]]))   # 0.0
