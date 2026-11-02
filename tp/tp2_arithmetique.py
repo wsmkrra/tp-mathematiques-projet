@@ -93,3 +93,51 @@ def facteurs(n):
 
 print(facteurs(360))
 print(math.prod(facteurs(360)))
+
+Ex 6.1
+import time
+
+def fibonacci_recursif(n):
+    if n < 2:
+        return n
+    return fibonacci_recursif(n - 1) + fibonacci_recursif(n - 2)
+
+for n in [20, 25, 30]:
+    debut = time.perf_counter()
+    fibonacci_recursif(n)
+    print(n, round(time.perf_counter() - debut, 4), "s")
+
+Ex 6.2
+appels = {}
+
+def fibonacci_compte(n):
+    appels[n] = appels.get(n, 0) + 1
+    if n < 2:
+        return n
+    return fibonacci_compte(n - 1) + fibonacci_compte(n - 2)
+
+fibonacci_compte(30)
+print(appels[1])
+print(sum(appels.values()))
+
+
+Ex 6.3
+def fibonacci(n):
+    precedent, courant = 0, 1
+    for _ in range(n):
+        precedent, courant = courant, precedent + courant
+    return precedent
+
+print(all(fibonacci(n) == fibonacci_recursif(n) for n in range(26)))
+print(len(str(fibonacci(10_000))))
+
+Ex 7.1
+def euclide_etendu(a, b):
+    if b == 0:
+        return (a, 1, 0)
+    g, u, v = euclide_etendu(b, a % b)
+    return (g, v, u - (a // b) * v)
+
+g, u, v = euclide_etendu(1071, 462)
+print((g, u, v))
+print(1071 * u + 462 * v)
