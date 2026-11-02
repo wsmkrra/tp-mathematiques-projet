@@ -1,168 +1,119 @@
-"""TP5 - Chiffrement affine et analyse des lettres."""
-
-from collections import Counter
-import random
+Ex 1.1
 import unicodedata
 
+def lettre_vers_nombre(c):
+    return ord(c) - ord("A")
 
+def nombre_vers_lettre(n):
+    return chr(n + ord("A"))
+
+print(lettre_vers_nombre("C"), nombre_vers_lettre(2))   # 2 C
+
+Ex 1.2
 def nettoyer(texte):
-    """Met en majuscules, retire les accents et les espaces."""
-    texte = unicodedata.normalize("NFD", texte.upper())
+    texte = unicodedata.normalize("NFD", texte)   # sépare les accents des lettres
     resultat = ""
-    for caractere in texte:
-        if unicodedata.category(caractere) == "Mn":
-            continue
-        if "A" <= caractere <= "Z":
-            resultat += caractere
+    for c in texte.upper():
+        if "A" <= c <= "Z":
+            resultat += c
     return resultat
 
+print(nettoyer("Été, à Paris !"))   # ETEAPARIS
 
-def lettre_vers_nombre(lettre):
-    return ord(lettre) - ord("A")
-
-
-def nombre_vers_lettre(nombre):
-    return chr(nombre % 26 + ord("A"))
-
-
-def pgcd(a, b):
-    while b != 0:
-        a, b = b, a % b
-    return abs(a)
-
-
-def cles_a_valides():
-    """Les valeurs de a doivent être premières avec 26."""
-    resultat = []
-    for a in range(1, 26):
-        if pgcd(a, 26) == 1:
-            resultat.append(a)
-    return resultat
-
-
+Ex 2.1
 def chiffrer(texte, a, b):
-    """Applique E(x)=(a*x+b) modulo 26."""
-    texte = nettoyer(texte)
     resultat = ""
-    for lettre in texte:
-        x = lettre_vers_nombre(lettre)
-        y = (a * x + b) % 26
+    for c in texte:
+        y = (a * lettre_vers_nombre(c) + b) % 26
         resultat += nombre_vers_lettre(y)
     return resultat
 
+print(chiffrer("ATTAQUEALAUBE", 5, 8))   # IZZIKECILIENC
 
-def inverse_modulaire(a, modulo):
-    """Cherche un nombre qui multiplié par a donne 1 modulo n."""
-    for candidat in range(1, modulo):
-        if (a * candidat) % modulo == 1:
-            return candidat
-    raise ValueError("Cette clé ne peut pas être inversée.")
+Ex 3.1
+from math import gcd
 
+cles_valides = [a for a in range(1, 26) if gcd(a, 26) == 1]
+print(cles_valides, len(cles_valides))   # 12 valeurs, toutes impaires, sans 13
 
+Ex 3.2
+def inverse_modulaire(a, n):
+    for x in range(1, n):
+        if (a * x) % n == 1:
+            return x
+    raise ValueError(f"{a} n'a pas d'inverse modulo {n}")
+
+print(inverse_modulaire(5, 26))   # 21
+
+Ex 4.1
 def dechiffrer(texte, a, b):
-    inverse = inverse_modulaire(a, 26)
-    texte = nettoyer(texte)
+    if gcd(a, 26) != 1:
+        raise ValueError("clé invalide : a doit être premier avec 26")
+    a_inv = inverse_modulaire(a, 26)
     resultat = ""
-    for lettre in texte:
-        y = lettre_vers_nombre(lettre)
-        x = (inverse * (y - b)) % 26
+    for c in texte:
+        x = (a_inv * (lettre_vers_nombre(c) - b)) % 26
         resultat += nombre_vers_lettre(x)
     return resultat
 
+print(dechiffrer(chiffrer("ATTAQUEALAUBE", 5, 8), 5, 8))   # ATTAQUEALAUBE
+# dechiffrer("ABC", 4, 7) lève une erreur : 4 n'est pas premier avec 26
 
+Ex 5.1
 def toutes_les_clefs(secret):
-    """Essaie toutes les clés inversibles."""
-    resultat = []
-    for a in cles_a_valides():
-        for b in range(26):
-            resultat.append((a, b, dechiffrer(secret, a, b)))
-    return resultat
+    resultats = []
+    for a in range(1, 26):
+        if gcd(a, 26) == 1:
+            for b in range(26):
+                resultats.append(((a, b), dechiffrer(secret, a, b)))
+    return resultats
 
+for cle, clair in toutes_les_clefs(secret):
+    print(cle, clair[:40])   # une seule ligne est du français : (7, 3)
 
-def candidats_frequence(secret):
-    """Suppose que la lettre chiffrée la plus courante vient de E."""
-    secret = nettoyer(secret)
-    frequences = Counter(secret)
-    lettre_courante = frequences.most_common(1)[0][0]
-    numero_courant = lettre_vers_nombre(lettre_courante)
-
+Ex 6.1
+def casser_par_frequences(secret):
+    lettre_frequente = Counter(secret).most_common(1)[0][0]
+    y_E = lettre_vers_nombre(lettre_frequente)
     candidats = []
-    for a in cles_a_valides():
-        b = (numero_courant - 4 * a) % 26
-        candidats.append((a, b, dechiffrer(secret, a, b)))
+    for a in range(1, 26):
+        if gcd(a, 26) == 1:
+            b = (y_E - a * lettre_vers_nombre("E")) % 26
+            candidats.append(((a, b), dechiffrer(secret, a, b)))
     return candidats
 
+for cle, clair in casser_par_frequences(secret):
+    print(cle, clair[:40])   # 12 candidats, dont (7, 3)
 
+Ex 7.1
 def indice_coincidence(texte):
-    """Mesure la probabilité de tirer deux fois la même lettre."""
-    texte = nettoyer(texte)
-    n = len(texte)
-    if n < 2:
-        return 0
+    N = len(texte)
     comptes = Counter(texte)
-    total = 0
-    for nombre in comptes.values():
-        total += nombre * (nombre - 1)
-    return total / (n * (n - 1))
+    return sum(n * (n - 1) for n in comptes.values()) / (N * (N - 1))
 
+hasard = "".join(random.choices(string.ascii_uppercase, k=len(texte_long)))
+print(indice_coincidence(texte_long))    
+print(indice_coincidence(secret_long))   
+print(indice_coincidence(hasard))       
 
+Ex 8.1
 def vigenere(texte, cle):
-    """Chiffre chaque lettre avec le décalage indiqué par la clé."""
-    texte = nettoyer(texte)
     cle = nettoyer(cle)
-    if len(cle) == 0:
-        raise ValueError("La clé ne peut pas être vide.")
-
     resultat = ""
-    for i in range(len(texte)):
-        x = lettre_vers_nombre(texte[i])
+    for i, c in enumerate(texte):
         decalage = lettre_vers_nombre(cle[i % len(cle)])
-        resultat += nombre_vers_lettre(x + decalage)
+        resultat += nombre_vers_lettre((lettre_vers_nombre(c) + decalage) % 26)
     return resultat
 
+chiffre_vig = vigenere(texte_long, "CLE")
+print(indice_coincidence(chiffre_vig))   
 
-def demonstrations():
-    print("1. Chiffrer et déchiffrer")
-    message = nettoyer("Attaque à l'aube")
-    secret = chiffrer(message, 5, 8)
-    print("Message :", message)
-    print("Chiffré :", secret)
-    print("Déchiffré :", dechiffrer(secret, 5, 8))
+Ex 8.2
+def indice_moyen_colonnes(texte, L):
+    colonnes = [texte[i::L] for i in range(L)]
+    return sum(indice_coincidence(col) for col in colonnes) / L
 
-    print("\n2. Clés possibles")
-    print(cles_a_valides(), "il y en a", len(cles_a_valides()))
-    print("Inverse de 5 modulo 26 :", inverse_modulaire(5, 26))
+for L in range(1, 8):
+    print(L, round(indice_moyen_colonnes(chiffre_vig, L), 4))
+# chez moi : ≈ 0,087 pour L = 3 et L = 6, ≈ 0,05 pour les autres
 
-    print("\n3. Force brute")
-    essais = toutes_les_clefs(secret)
-    print("Nombre de clés testées :", len(essais))
-    for a, b, texte in essais:
-        if texte == message:
-            print("Bonne clé trouvée :", a, b)
-
-    print("\n4. Analyse de fréquences")
-    texte_long = nettoyer(
-        "Le chiffrement affine remplace les lettres par d'autres lettres "
-        "et conserve les frequences du texte."
-    )
-    secret_long = chiffrer(texte_long, 7, 12)
-    for candidat in candidats_frequence(secret_long):
-        print(candidat)
-
-    print("\n5. Indice de coïncidence")
-    generateur = random.Random(1)
-    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    hasard = ""
-    for _ in range(len(texte_long)):
-        hasard += generateur.choice(alphabet)
-    print("Texte clair :", indice_coincidence(texte_long))
-    print("Texte chiffré :", indice_coincidence(secret_long))
-    print("Lettres au hasard :", indice_coincidence(hasard))
-
-    print("\n6. Vigenère")
-    secret_vigenere = vigenere(texte_long * 4, "CLE")
-    print("Indice :", indice_coincidence(secret_vigenere))
-
-
-if __name__ == "__main__":
-    demonstrations()
