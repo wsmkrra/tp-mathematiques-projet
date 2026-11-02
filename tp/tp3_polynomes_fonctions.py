@@ -1,6 +1,6 @@
 Ex 1.1
 
-python
+
 def evaluer_naif(P, x):
     total = 0
     for i in range(len(P)):
@@ -11,7 +11,7 @@ print(evaluer_naif([2, 3, 0, 5], 2))
 
 Ex 2.1 (Horner, nécessite evaluer_naif de 1.1)
 
-python
+
 def evaluer(P, x):
     resultat = 0
     for c in reversed(P):
@@ -28,7 +28,7 @@ Ex 2.2 (nécessite evaluer_naif et evaluer)
 
 Écrivez d’abord votre prévision dans une cellule Markdown, avant de lancer la mesure.
 
-python
+
 import time
 
 def mesure(f, P, x, repet):
@@ -79,7 +79,7 @@ print(dichotomie(carre_moins_deux, 0, 2))   # environ 1.414214
 Ex 4.2 (nécessite evaluer et deriver)
 Newton renvoie un couple (racine, nombre de tours), ce qui sert pour l’exercice 4.4.
 
-python
+
 def newton(P, depart, tolerance=1e-12, max_tours=50):
     x = depart
     dP = deriver(P)
@@ -99,7 +99,7 @@ print(racine, tours)   # 2.0945514815... en 5 tours
 
 Ex 4.3 (nécessite newton)
 
-python
+
 def trajet_newton(P, depart, n):
     x = depart
     dP = deriver(P)
@@ -117,13 +117,12 @@ except RuntimeError as e:
 
 Ex 4.4 (nécessite newton)
 
-python
+
 print(newton([-5, -2, 0, 1], 0))   # 20 tours
 print(newton([-5, -2, 0, 1], 2))   # 5 tours
 
 Ex 5.1 (nécessite evaluer)
-
-python
+                                      
 import matplotlib.pyplot as plt
 
 Q = [-5, -2, 0, 1]          # x^3 - 2x - 5
@@ -145,7 +144,6 @@ Réponse à écrire : la courbe ne coupe l’axe qu’une seule fois, au point t
 
 Ex 6.1
 
-python
 def somme(P, Q):
     n = max(len(P), len(Q))
     P2 = P + [0] * (n - len(P))
@@ -174,7 +172,6 @@ C’est la ligne 10 du triangle de Pascal (coefficients binomiaux).
 
 Ex 7.1
 
-python
 import math
 
 def derivee_avant(f, x, h):
@@ -189,5 +186,3 @@ for k in [1, 2, 4, 6, 8, 10, 12]:
     e1 = abs(derivee_avant(math.sin, 1, h) - exacte)
     e2 = abs(derivee_centree(math.sin, 1, h) - exacte)
     print(f"h = 1e-{k:<2}  avant : {e1:.2e}   centree : {e2:.2e}")
-
-Mes résultats : le meilleur pas est ≈ 10⁻⁸ pour la formule avant et ≈ 10⁻⁶ pour la centrée. À h = 10⁻¹², l’erreur remonte de 4 ordres de grandeur (avant) et 6 (centrée).
