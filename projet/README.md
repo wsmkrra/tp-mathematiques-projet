@@ -1,27 +1,83 @@
-# Projet de géométrie : cercles et droites
+# Géométrie du plan : cercles, droites et intersections
 
-## Objectif
+Petit module Python qui calcule :
 
-Le programme calcule le cercle passant par trois points, puis cherche où une droite le coupe.
+- le cercle passant par trois points ;
+- les points d'intersection d'une droite et d'un cercle.
 
-## Calculs géométriques
+Aucune dépendance : seul le module `math` de la bibliothèque standard est utilisé.
 
-- Le centre du cercle est calculé à partir des trois points.
-- Pour la droite, le programme trouve le point le plus proche du centre. La distance à ce point permet de savoir si la droite ne coupe pas le cercle, le touche ou le traverse.
+## Contenu du projet
 
-## Lancer le programme
+| Fichier        | Rôle                                                        |
+| -------------- | ----------------------------------------------------------- |
+| `geometrie.py` | Les deux fonctions et une démonstration (`demonstrations`). |
+| `README.md`    | Ce fichier.                                                 |
 
-Depuis la racine du dépôt :
+## Lancer la démonstration
 
 ```bash
-python -m projet.cercles
+python3 geometrie.py
 ```
 
-Les exemples montrent une sécante, une tangente, une droite extérieure et un cas de trois points presque alignés.
+Sortie attendue :
+
+```
+Centre : (2.0, -1.0)  rayon : 5.0
+Sécante : [(-3.0, -1.0), (7.0, -1.0)]
+Tangente : [(2.0, 4.0)]
+Extérieure : []
+Presque alignés : les points sont alignés ou presque alignés
+```
+
+## Utilisation dans votre code
+
+```python
+from geometrie import cercle_par_trois_points, intersections_droite_cercle
+
+centre, rayon = cercle_par_trois_points((7, -1), (2, 4), (-3, -1))
+
+points = intersections_droite_cercle(
+    centre, rayon, origine=(-6, -1), direction=(1, 0)
+)
+print(points)   # [(-3.0, -1.0), (7.0, -1.0)]
+```
+
+## Fonctions
+
+### `cercle_par_trois_points(A, B, C, tolerance=1e-12)`
+
+Renvoie `(centre, rayon)` : `centre` est un couple `(x, y)`, `rayon` un flottant.
+
+- Lève `ValueError` si deux des points sont confondus.
+- Lève `ValueError` si les trois points sont alignés ou presque alignés.
+
+### `intersections_droite_cercle(centre, rayon, origine, direction, tolerance=1e-12)`
+
+Renvoie la liste des points d'intersection de la droite qui passe par `origine` et a pour vecteur directeur `direction`, avec le cercle.
+
+| Résultat          | Signification         |
+| ----------------- | --------------------- |
+| `[]`              | pas d'intersection    |
+| un point          | droite tangente       |
+| deux points       | droite sécante        |
+
+- Lève `ValueError` si le rayon est négatif ou si `direction` est le vecteur nul.
+
+## Tolérance
+
+Les calculs se font en nombres flottants, donc les cas limites (tangence, alignement) sont tranchés avec une tolérance relative :
+
+- **Cercle.** Le produit en croix de `AB` et `AC` est comparé à `tolerance × |AB| × |AC|`. Les trois points sont donc rejetés quand le sinus de l'angle en `A` est inférieur à `tolerance`.
+- **Droite.** La droite est tangente quand `|r² − d²| ≤ tolerance × r²`, où `d` est la distance du centre à la droite.
 
 ## Limites
 
-Les calculs utilisent des nombres flottants. Quand les trois points sont presque alignés, le cercle calculé devient très sensible aux petites erreurs.
+- Le module ne travaille que dans le plan (pas de 3D).
+- Les points sont donnés comme des couples de nombres `(x, y)`.
+- La précision est de l'ordre de 10⁻¹¹ en relatif, limitée par les flottants.
 
-Ce projet se concentre sur la géométrie. Il ne couvre pas à lui seul toutes les notions demandées pour le projet du module.
+## Auteur et licence
 
+Auteur : à compléter.
+Licence : à compléter.
